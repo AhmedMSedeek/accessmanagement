@@ -1,0 +1,18 @@
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
+
+ALLOCATE_GLOBAL_ADDRESS
+    Address("${package}")
+    "AccessManager"
+    AddressReservation("address_reservation")
+    NamedAddress("component_address");
+
+CALL_FUNCTION
+    Address("${package}")
+    "AccessManager"
+    "new_with_address_reservation"
+    Address("${auth_badge}")
+    Address("${account}")
+    AddressReservation("address_reservation");
+
+CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
+    

@@ -1,0 +1,8 @@
+CALL_METHOD Address("${account2}") "lock_fee" Decimal("100");
+
+CALL_METHOD
+    Address("${account2}")
+    "burn_non_fungibles"
+    Address("${access_key_badge}")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
+    

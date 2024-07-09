@@ -1,0 +1,15 @@
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
+
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${component_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${component_manager_badge_id}"));
+
+CALL_METHOD
+    Address("${component}")
+    "recall_key_badge"
+    Address("${access_key_badge_vault_address}");
+
+TAKE_NON_FUNGIBLES_FROM_WORKTOP Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}")) Bucket("access_key_badge_bucket");
+
+CALL_METHOD
+    Address("${component}")
+    "burn_key_badge"
+    Bucket("access_key_badge_bucket");
