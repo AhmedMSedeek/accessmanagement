@@ -29,6 +29,11 @@ After creating the access manager component, an "Access Manager Owner Badge" is 
 Deployed pachages addresses:
 Stokenet v1.0.0: package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq
 Mainnet v1.0.0: 
+
+You should use your own dApp account address, but if you don't have one, you can always use RadixPlanet dApp account address:
+Stokenet: account_tdx_2_128ly7s6494uasmggf9rxy6th2e6zu53hj7p0uxgq2ucdmzf43gqkus
+Mainnet: account_rdx12xjdx9ntkjl60r7fuv9az8uzmad0d05mqmjstrpkpvtcew87crahw6
+
 ## Create Access Manager Component with address reservation
 Sometimes you need to create the component with address reservation on the transaction manifest level, to do so, use the following transaction manifest syntax
 ```
