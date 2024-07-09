@@ -20,11 +20,15 @@ CALL_FUNCTION
     "AccessManager"
     "new"
     Address("${auth_badge}")
-    Address("${account}");
+    Address("${dApp_account_address}");
 
 CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
 ```
 After creating the access manager component, an "Access Manager Owner Badge" is minted and returned to the caller, we will use this badge to perform privileged actions later
+
+Deployed pachages addresses:
+Stokenet v1.0.0: package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq
+Mainnet v1.0.0: 
 ## Create Access Manager Component with address reservation
 Sometimes you need to create the component with address reservation on the transaction manifest level, to do so, use the following transaction manifest syntax
 ```
