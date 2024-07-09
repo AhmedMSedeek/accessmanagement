@@ -125,7 +125,7 @@ mod access_manager {
                     }
                 ))
                 .mint_roles(mint_roles! (
-                    minter => rule!(require(global_caller(component_address)));
+                    minter => rule!(require(global_caller(component_address)) || require(owner_badge.resource_address()));
                     minter_updater => rule!(deny_all);
                 ))
                 .burn_roles(burn_roles! (
@@ -133,15 +133,15 @@ mod access_manager {
                     burner_updater => rule!(deny_all);
                 ))
                 .withdraw_roles(withdraw_roles! (
-                    withdrawer => rule!(deny_all);
+                    withdrawer => rule!(require(owner_badge.resource_address()));
                     withdrawer_updater => rule!(deny_all);
                 ))
                 .deposit_roles(deposit_roles! (
-                    depositor => rule!(allow_all);
+                    depositor => rule!(require(owner_badge.resource_address()));
                     depositor_updater => rule!(deny_all);
                 ))
                 .recall_roles(recall_roles! (
-                    recaller => rule!(require(global_caller(component_address)));
+                    recaller => rule!(require(global_caller(component_address)) || require(owner_badge.resource_address()));
                     recaller_updater => rule!(deny_all);
                 ))
                 .freeze_roles(freeze_roles! (
@@ -181,7 +181,7 @@ mod access_manager {
 
             (component, owner_badge)
         }
-            pub fn deposit_auth_badge(&mut self, auth_badge: NonFungibleBucket) {
+        pub fn deposit_auth_badge(&mut self, auth_badge: NonFungibleBucket) {
             assert!(self.auth_badge.is_empty(), "Access Manager component already has an auth badge!");
             assert!(auth_badge.amount() == Decimal::ONE, "Cannot deposit any amount other than exactly one!");
             self.auth_badge.put(auth_badge);

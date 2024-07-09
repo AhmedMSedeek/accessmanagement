@@ -1,5 +1,6 @@
-CALL_METHOD Address("${account2}") "lock_fee" Decimal("100");
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
 
-CALL_METHOD Address("${account2}") "withdraw_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${component_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${component_manager_badge_id}"));
+CALL_METHOD Address("${account}") "withdraw_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
 
-CALL_METHOD Address("${account}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;
+CALL_METHOD Address("${account2}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;

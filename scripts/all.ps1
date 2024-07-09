@@ -40,6 +40,9 @@ $command_output=resim run .\manifests\recall_and_burn_access_key_badge.rtm
 # Create auth badge proof
 $command_output=resim run .\manifests\create_auth_badge_proof.rtm
 
+# Withdraw auth badge
+$command_output=resim run .\manifests\withdraw_auth_badge.rtm
+
 
 
 
@@ -48,7 +51,6 @@ $command_output=resim run .\manifests\create_auth_badge_proof.rtm
 
 
 $command_output=resim set-default-account $env:account2 $env:private_key2 $env:owner_badge2":"$env:owner_badge_id2
-# This transaction must fail
 $command_output=resim run .\manifests\test_access_key_badge_withdraw.rtm
 
 # Burn the access key badge
