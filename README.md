@@ -50,7 +50,7 @@ CALL_FUNCTION
     "AccessManager"
     "new_with_address_reservation"
     Address("${auth_badge}")
-    Address("${account}")
+    Address("${dApp_account_address}")
     AddressReservation("address_reservation");
 
 CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
