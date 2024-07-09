@@ -209,6 +209,7 @@ mod access_manager {
             self.auth_badge.as_non_fungible().create_proof_of_non_fungibles(&self.auth_badge.as_non_fungible().non_fungible_local_ids(1))
         }
         pub fn withdraw_auth_badge(&mut self) -> NonFungibleBucket {
+            assert!(self.auth_badge.amount() == Decimal::ONE, "Cannot create a proof with an empty vault, deposit the auth badge first!");
             self.auth_badge.take(1)
         }
     }
