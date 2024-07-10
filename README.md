@@ -121,7 +121,7 @@ CALL_METHOD
     Address("${component}")
     "create_auth_badge_proof";
 ```
-**Note**: it's assumed in the above manifest that the holder of the "Access Key Badge" is the one requesting the "Auth Badge" proof, but the permission is given to both "Access Manager Owner Badge" and the "Access Key Badge", so the access manager owner can also create a proof from the "Auth Bagde" without the need to create a separate "Access Key Badge"
+**Note**: it's assumed in the above manifest that the holder of the "Access Key Badge" is the one requesting the "Auth Badge" proof, but the permission is given to both "Access Manager Owner Badge" and the "Access Key Badge", so the access manager owner can also create a proof from the "Auth Badge" without the need to create a separate "Access Key Badge"
 ## Withdraw Auth Badge
 At any time, the owner of the access manager component can withdraw the "Auth Badge" from the component, after this action, the access manager component will no longer be able to create a proof for the "Auth Badge"
 To withdraw the "Auth Badge" from the access manager component, use the following syntax
