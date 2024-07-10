@@ -6,7 +6,7 @@ Access Management is a Scrypto package for Access Manager Blueprint, which allow
 
 **Access Manager Owner Badge**: a badge issued to the component instantiator
 
-**Access Key Badge**: a badge issued by the persom holding the "Component Owner Badge" to be given to the delegates
+**Access Key Badge**: a badge issued by the person holding the "Component Owner Badge" to be given to the delegates
 
 **Delegate**: The delegate is the user that the owner of the "Auth Badge" NFT desires to **delegate** the permission of the "Auth Badge" to, so that he can take actions that requires the authority of the "Auth Badge" on behalf of the owner of the "Auth Badge"
 
