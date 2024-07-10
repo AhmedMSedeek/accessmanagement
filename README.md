@@ -85,6 +85,7 @@ CALL_METHOD
 CALL_METHOD Address("${delegate_account}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;
 ```
 **Note**: You can use the direct manifest mint instructions directly without calling the component as the "mint" permission is given to both the "Access Manager Owner Badge" and the component itself, the component "create_access_key_badge" method is provided for completion
+
 **Note**: the created key only be moved between accounts after it is given to the delegate by the owner of the NFT, by creating a proof of the "Access Manager Owner Badge" in the transaction manifest, after that, if the "Access Key Badge" exists in his own account, he can withdraw it normally, if not, he can recall the "Access Key Badge" from the vault it is in, and then deposit it normally to anyne else (given that he passes other deposit restrictions the receiver has in place)
 ## Recall an Access Key Badge
 to recall a previously issued Access Key Badge, use the following transaction manifest syntax
@@ -108,6 +109,7 @@ CALL_METHOD
     Bucket("access_key_badge_bucket");
 ```
 **Note**: You can use the direct manifest burn instructions directly without calling the component as the "burn" permission is set to "allow_all" so that anyone can burn the access key badge in his custody, the component "recall_key_badge" method is provided for completion
+
 **Note**: By allowing any access key badge holder to burn the key in his custody this simply means that the delegate can give up the delegated authority/permission whenever he desires, but in order for him to "re-gain" the permission, the access manager owner needs to mint a new access key badge and give it to him
 ## Create Auth Badge Proof
 This method allows both the "Access Manager Owner Badge" holder and the "Access Key Badge" holder to create a proof of the "Auh Badge" to be used in privileged actions in the same transaction manifest
