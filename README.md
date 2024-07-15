@@ -33,7 +33,7 @@ After creating the access manager component, an "Access Manager Owner Badge" is 
 
 Stokenet v1.0.0: package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq
 
-Mainnet v1.0.0: 
+Mainnet v1.0.0: package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8
 
 You should use your own dApp account address, but if you don't have one, you can always use **RadixPlanet dApp account address:**
 
@@ -87,7 +87,7 @@ CALL_METHOD Address("${delegate_account}") "try_deposit_batch_or_abort" Expressi
 **Note**: You can use the direct manifest mint instructions directly without calling the component as the "mint" permission is given to both the "Access Manager Owner Badge" and the component itself, the component "create_access_key_badge" method is provided for completion
 
 **Note**: the created key only be moved between accounts after it is given to the delegate by the owner of the NFT, by creating a proof of the "Access Manager Owner Badge" in the transaction manifest, after that, if the "Access Key Badge" exists in his own account, he can withdraw it normally, if not, he can recall the "Access Key Badge" from the vault it is in, and then deposit it normally to anyne else (given that he passes other deposit restrictions the receiver has in place)
-## Recall an Access Key Badge
+## Recall and Burn an Access Key Badge
 to recall a previously issued Access Key Badge, use the following transaction manifest syntax
 ```
 CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_owner_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_owner_badge_id}"));
@@ -97,17 +97,15 @@ CALL_METHOD
     "recall_key_badge"
     Address("${access_key_badge_vault_address}");
 
-CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
-```
-**Note**: You can use the direct manifest recall instructions directly without calling the component as the "recall" permission is given to both the "Access Manager Owner Badge" and the component itself, the component "recall_key_badge" method is provided for completion
-## Burn an Access Key Badge
-To burn an access key badge, you can use the following transaction manifest syntax
-```
+TAKE_NON_FUNGIBLES_FROM_WORKTOP Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}")) Bucket("access_key_badge_bucket");
+
 CALL_METHOD
     Address("${component}")
     "burn_key_badge"
     Bucket("access_key_badge_bucket");
 ```
+**Note**: You can use the direct manifest recall instructions directly without calling the component as the "recall" permission is given to both the "Access Manager Owner Badge" and the component itself, the component "recall_key_badge" method is provided for completion
+
 **Note**: You can use the direct manifest burn instructions directly without calling the component as the "burn" permission is set to "allow_all" so that anyone can burn the access key badge in his custody, the component "recall_key_badge" method is provided for completion
 
 **Note**: By allowing any access key badge holder to burn the key in his custody this simply means that the delegate can give up the delegated authority/permission whenever he desires, but in order for him to "re-gain" the permission, the access manager owner needs to mint a new access key badge and give it to him
