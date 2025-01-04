@@ -2,12 +2,9 @@
 Access Management is a Scrypto package for Access Manager Blueprint, which allows a Radix user who has an NFT in his possession that has some kind of permission to delegate the permission of that NFT to several other people
 
 # Terminology
-**Auth Badge**:  
-the original NFT that has the permission the owner wants to delegate  
-**Access Manager Owner Badge**:  
-a badge issued to the component instantiator  
-**Access Key Badge**:  
-a badge issued by the person holding the "Access Manager Owner Badge" to be given to the delegates  
+**Auth Badge**: the original NFT that has the permission the owner wants to delegate  
+**Access Manager Owner Badge**: a badge issued to the component instantiator  
+**Access Key Badge**: a badge issued by the person holding the "Access Manager Owner Badge" to be given to the delegates  
 **Delegate**: The delegate is the user that the owner of the "Auth Badge" NFT desires to **delegate** the permission of the "Auth Badge" to, so that he can take actions that requires the authority of the "Auth Badge" on behalf of the owner of the "Auth Badge"
 
 # Delegation Methodology Explained
@@ -26,7 +23,7 @@ CALL_FUNCTION
 
 CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");
 ```
-After creating the access manager component, an "Access Manager Owner Badge" is minted and returned to the caller, we will use this badge to perform privileged actions later
+After creating the access manager component, an "Access Manager Owner Badge" is minted and returned to the caller, we will use this badge to perform privileged actions later  
 **Deployed packages addresses:**  
 **Stokenet v1.0.0:** package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq  
 **Mainnet v1.0.0:** package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8  
