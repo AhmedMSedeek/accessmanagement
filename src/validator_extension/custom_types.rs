@@ -1,9 +1,9 @@
 use scrypto::prelude::*;
-// #[derive(ScryptoSbor, NonFungibleData)]
-// pub struct ValidatorOwnerBadgeData {
-//     pub name: String,
-//     pub validator: ComponentAddress,
-// }
+#[derive(ScryptoSbor, NonFungibleData)]
+pub struct ValidatorOwnerBadgeData {
+    pub name: String,
+    pub validator: ComponentAddress,
+}
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct KeyBadgeValidatorPermissions {
     pub stake_as_owner: bool,
