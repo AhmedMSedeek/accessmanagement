@@ -27,8 +27,8 @@ $env:component_manager_badge_id=$non_fungible_ids.Split(":")[1].Replace(" ", "")
 
 $command_output=resim run .\manifests\deposit_auth_badge.rtm
 
-# Create access key badge
-$command_output=resim run .\manifests\create_access_key_badge.rtm
+# Create access key badge (basic)
+$command_output=resim run .\manifests\create_basic_key_badge.rtm
 $non_fungible_ids=$command_output | Where-Object { $_ -match "change:" -And $_ -match "{" }
 $env:access_key_badge_id=$non_fungible_ids.Split(":")[1].Replace(" ", "").Replace("+{{", "{").Replace("}},-{}", "}")
 $non_fungible_ids_index=$command_output.IndexOf($non_fungible_ids)

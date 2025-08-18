@@ -61,9 +61,9 @@ pub enum KeyBadgePermission {
     CreateNativeProof,
 
     // Validator permissions
-    StakeAsOwner,
     Register,
     Unregister,
+    StakeAsOwner,
     UpdateKey,
     UpdateFee,
     UpdateAcceptDelegatedStake,

@@ -16,7 +16,7 @@ mod access_manager {
         methods { 
             deposit_auth_badge => restrict_to: [component_owner];
             create_super_access_key_badge => restrict_to: [component_owner];
-            create_standard_access_key_badge => restrict_to: [component_owner, key_holder];
+            create_basic_key_badge => restrict_to: [component_owner, key_holder];
             create_custom_access_key_badge => restrict_to: [component_owner, key_holder];
             recall_key_badge => restrict_to: [component_owner];
             burn_key_badge => restrict_to: [component_owner];
@@ -41,7 +41,7 @@ mod access_manager {
         new_with_address_reservation => Usd(dec!(0.01));
         deposit_auth_badge => Usd(dec!(0.01));
         create_super_access_key_badge => Usd(dec!(0.01));
-        create_standard_access_key_badge => Usd(dec!(0.01));
+        create_basic_key_badge => Usd(dec!(0.01));
         create_custom_access_key_badge => Usd(dec!(0.01));
         recall_key_badge => Usd(dec!(0.01));
         burn_key_badge => Usd(dec!(0.01));
@@ -225,7 +225,8 @@ mod access_manager {
             }
             crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
         }
-        pub fn create_standard_access_key_badge(&mut self, include_validator_permissions: bool, proof: NonFungibleProof) -> NonFungibleBucket {
+    // `create_access_key_badge` was intentionally removed in v2; use `create_basic_key_badge` (owner or key-holder with proper proof) instead.
+        pub fn create_basic_key_badge(&mut self, include_validator_permissions: bool, proof: NonFungibleProof) -> NonFungibleBucket {
             // can be called by either the owner or a key holder
             // need to check if the key holder has the right permissions
             crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
