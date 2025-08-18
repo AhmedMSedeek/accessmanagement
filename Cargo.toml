@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 scrypto = { version = "1.2.0" }
+strum = "0.25"
+strum_macros = "0.25"
 
 [dev-dependencies]
 scrypto-test = { version = "1.2.0" }

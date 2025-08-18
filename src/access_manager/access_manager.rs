@@ -249,12 +249,24 @@ mod access_manager {
             }
             crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
         }
-        pub fn create_custom_access_key_badge(&mut self, permissions: Vec<KeyBadgePermission>, proof: NonFungibleProof) -> NonFungibleBucket {
+        pub fn create_custom_access_key_badge(&mut self, permissions: Vec<String>, proof: NonFungibleProof) -> NonFungibleBucket {
+            let permissions_enum: Result<Vec<_>, _> = permissions
+                .into_iter()
+                .map(|s| KeyBadgePermission::from_str(&s).map_err(|e| e.to_string()))
+                .collect();
+
+           let permissions_enum = match permissions_enum {
+                Ok(v) => v,
+                Err(e) => {
+                    panic!("Invalid permission string: {}", e); 
+                    // or handle differently
+                }
+            };
             // if component_owner, accept super permissions as is
             // if key holder, super permissions must be none
             if proof.resource_manager().address() == self.access_key_badge_resource_manager.address() {
                 // if the proof is an access key badge, make sure no super permissions are included
-                if permissions.iter().any(|p| matches!(p, KeyBadgePermission::CreateAccessKey | KeyBadgePermission::RecallAccessKey)) {
+                if permissions_enum.iter().any(|p| matches!(p, KeyBadgePermission::CreateAccessKey | KeyBadgePermission::RecallAccessKey)) {
                     panic!("Key holders cannot create access key badges with super permissions!");
                 }
             }
@@ -263,7 +275,7 @@ mod access_manager {
             // need to check if the key holder has the right permissions
             crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
             
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
+            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions_enum)
         }
         pub fn recall_key_badge(&mut self, vault_address: InternalAddress) -> NonFungibleBucket {
             // can be called by either the owner or a key holder

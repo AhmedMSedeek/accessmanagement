@@ -1,4 +1,5 @@
 use scrypto::prelude::*;
+use strum_macros::EnumString;
 
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct OwnerBadgeData {
@@ -50,7 +51,7 @@ pub struct AccessKeyBadgeData {
 //     StartUnlockOwnerStakeUnits,
 //     FinishUnlockOwnerStakeUnits
 // }
-#[derive(ScryptoSbor, PartialEq)]
+#[derive(ScryptoSbor, PartialEq, EnumString)]
 pub enum KeyBadgePermission {
     // Super permissions
     CreateAccessKey,
