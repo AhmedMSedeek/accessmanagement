@@ -1,7 +1,5 @@
 use scrypto::prelude::*;
 use crate::access_manager::custom_types::*;
-use crate::access_manager::access_manager_helper::*;
-use crate::validator_extension::custom_types::*;
 
 #[blueprint]
 mod access_manager {
@@ -26,7 +24,16 @@ mod access_manager {
             withdraw_auth_badge => restrict_to: [component_owner];
 
             // validator extension methods
+            validator_register => restrict_to: [component_owner, key_holder];
+            validator_unregister => restrict_to: [component_owner, key_holder];
             validator_stake_as_owner => restrict_to: [component_owner, key_holder];
+            validator_update_key => restrict_to: [component_owner, key_holder];
+            validator_update_fee => restrict_to: [component_owner, key_holder];
+            validator_update_accept_delegated_stake => restrict_to: [component_owner, key_holder];
+            validator_signal_protocol_update_readiness => restrict_to: [component_owner, key_holder];
+            validator_lock_owner_stake_units => restrict_to: [component_owner, key_holder];
+            validator_start_unlock_owner_stake_units => restrict_to: [component_owner, key_holder];
+            validator_finish_unlock_owner_stake_units => restrict_to: [component_owner, key_holder];
         }
     }
     enable_package_royalties! {
@@ -42,7 +49,16 @@ mod access_manager {
         withdraw_auth_badge => Usd(dec!(0.01));
 
         // validator extension methods
+        validator_register => Usd(dec!(0.01));
+        validator_unregister => Usd(dec!(0.01));
         validator_stake_as_owner => Usd(dec!(0.01));
+        validator_update_key => Usd(dec!(0.01));
+        validator_update_fee => Usd(dec!(0.01));
+        validator_update_accept_delegated_stake => Usd(dec!(0.01));
+        validator_signal_protocol_update_readiness => Usd(dec!(0.01));
+        validator_lock_owner_stake_units => Usd(dec!(0.01));
+        validator_start_unlock_owner_stake_units => Usd(dec!(0.01));
+        validator_finish_unlock_owner_stake_units => Usd(dec!(0.01));
     }
     pub struct AccessManager {
         pub auth_badge: NonFungibleVault,
@@ -186,44 +202,68 @@ mod access_manager {
             assert!(auth_badge.amount() == Decimal::ONE, "Cannot deposit any amount other than exactly one!");
             self.auth_badge.put(auth_badge);
         }
-        pub fn create_super_access_key_badge(&mut self, validator_permissions: Option<KeyBadgeValidatorPermissions>) -> NonFungibleBucket {
+        pub fn create_super_access_key_badge(&mut self, include_validator_permissions: bool) -> NonFungibleBucket {
             // called by the owner only
-            let super_permissions= KeyBadgeSuperPermissions {
-                create_access_key: true,
-                recall_access_key: true
-            };
-            let basic_permissions = KeyBadgeBasicPermissions {
-                create_native_proof: true
-            };
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, super_permissions, basic_permissions, validator_permissions)
+            let mut permissions = vec![
+                KeyBadgePermission::CreateAccessKey,
+                KeyBadgePermission::RecallAccessKey,
+                KeyBadgePermission::CreateNativeProof
+            ];
+            if include_validator_permissions {
+                permissions.extend(vec![
+                    KeyBadgePermission::StakeAsOwner,
+                    KeyBadgePermission::Register,
+                    KeyBadgePermission::Unregister,
+                    KeyBadgePermission::UpdateKey,
+                    KeyBadgePermission::UpdateFee,
+                    KeyBadgePermission::UpdateAcceptDelegatedStake,
+                    KeyBadgePermission::SignalProtocolUpdateReadiness,
+                    KeyBadgePermission::LockOwnerStakeUnits,
+                    KeyBadgePermission::StartUnlockOwnerStakeUnits,
+                    KeyBadgePermission::FinishUnlockOwnerStakeUnits
+                ]);
+            }
+            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
         }
-        pub fn create_standard_access_key_badge(&mut self, validator_permissions: Option<KeyBadgeValidatorPermissions>, proof: NonFungibleProof) -> NonFungibleBucket {
+        pub fn create_standard_access_key_badge(&mut self, include_validator_permissions: bool, proof: NonFungibleProof) -> NonFungibleBucket {
             // can be called by either the owner or a key holder
             // need to check if the key holder has the right permissions
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, "create_access_key", proof);
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
 
-            let super_permissions= KeyBadgeSuperPermissions {
-                create_access_key: false,
-                recall_access_key: false
-            };
-            let basic_permissions = KeyBadgeBasicPermissions {
-                create_native_proof: true
-            };
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, super_permissions, basic_permissions, validator_permissions)
+            let mut permissions = vec![
+                KeyBadgePermission::CreateNativeProof
+            ];
+            if include_validator_permissions {
+                permissions.extend(vec![
+                    KeyBadgePermission::StakeAsOwner,
+                    KeyBadgePermission::Register,
+                    KeyBadgePermission::Unregister,
+                    KeyBadgePermission::UpdateKey,
+                    KeyBadgePermission::UpdateFee,
+                    KeyBadgePermission::UpdateAcceptDelegatedStake,
+                    KeyBadgePermission::SignalProtocolUpdateReadiness,
+                    KeyBadgePermission::LockOwnerStakeUnits,
+                    KeyBadgePermission::StartUnlockOwnerStakeUnits,
+                    KeyBadgePermission::FinishUnlockOwnerStakeUnits
+                ]);
+            }
+            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
         }
-        pub fn create_custom_access_key_badge(&mut self, super_permissions: Option<KeyBadgeSuperPermissions>, basic_permissions: KeyBadgeBasicPermissions, validator_permissions: Option<KeyBadgeValidatorPermissions>, proof: NonFungibleProof) -> NonFungibleBucket {
+        pub fn create_custom_access_key_badge(&mut self, permissions: Vec<KeyBadgePermission>, proof: NonFungibleProof) -> NonFungibleBucket {
             // if component_owner, accept super permissions as is
             // if key holder, super permissions must be none
-            if proof.resource_manager().address() == self.access_key_badge_resource_manager.address() && super_permissions.is_some() {
-                // if the proof is an access key badge, and he provided super permissions, he has no permission, panic
-                panic!("Key holders cannot create access key badges with super permissions!");
+            if proof.resource_manager().address() == self.access_key_badge_resource_manager.address() {
+                // if the proof is an access key badge, make sure no super permissions are included
+                if permissions.iter().any(|p| matches!(p, KeyBadgePermission::CreateAccessKey | KeyBadgePermission::RecallAccessKey)) {
+                    panic!("Key holders cannot create access key badges with super permissions!");
+                }
             }
 
             // can be called by either the owner or a key holder
             // need to check if the key holder has the right permissions
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, "create_access_key", proof);
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
             
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, super_permissions.unwrap(), basic_permissions, validator_permissions)
+            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
         }
         pub fn recall_key_badge(&mut self, vault_address: InternalAddress) -> NonFungibleBucket {
             // can be called by either the owner or a key holder
@@ -248,11 +288,35 @@ mod access_manager {
         }
     
         // validator extension methods
-        pub fn validator_stake_as_owner(&mut self, stake: Bucket, proof: Proof) -> Bucket {
+        pub fn validator_register(&mut self, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::register(self, proof);
+        }
+        pub fn validator_unregister(&mut self, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::unregister(self, proof);
+        }
+        pub fn validator_stake_as_owner(&mut self, stake: Bucket, proof: NonFungibleProof) -> Bucket {
             crate::validator_extension::validator_extension::stake_as_owner(self, stake, proof)
         }
-
-        
-
+        pub fn validator_update_key(&mut self, key: Secp256k1PublicKey, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::update_key(self, key, proof);
+        }
+        pub fn validator_update_fee(&mut self, new_fee_factor: Decimal, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::update_fee(self, new_fee_factor, proof);
+        }
+        pub fn validator_update_accept_delegated_stake(&mut self, accept_delegated_stake: bool, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::update_accept_delegated_stake(self, accept_delegated_stake, proof);
+        }
+        pub fn validator_signal_protocol_update_readiness(&mut self, vote: String, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::signal_protocol_update_readiness(self, vote, proof);
+        }
+        pub fn validator_lock_owner_stake_units(&mut self, stake_unit_bucket: Bucket, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::lock_owner_stake_units(self, stake_unit_bucket, proof);
+        }
+        pub fn validator_start_unlock_owner_stake_units(&mut self, requested_stake_unit_amount: Decimal, proof: NonFungibleProof) {
+            crate::validator_extension::validator_extension::start_unlock_owner_stake_units(self, requested_stake_unit_amount, proof);
+        }
+        pub fn validator_finish_unlock_owner_stake_units(&mut self, proof: NonFungibleProof) -> Bucket {
+            crate::validator_extension::validator_extension::finish_unlock_owner_stake_units(self, proof)
+        }
     }
 }
