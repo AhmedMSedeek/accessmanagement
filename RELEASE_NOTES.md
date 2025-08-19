@@ -17,7 +17,7 @@ Developer notes:
 - When constructing manifests for `create_custom_access_key_badge` you must include the permissions values correctly in the manifest arguments. below are all possible permissions:
   - Super permissions: CreateAccessKey, RecallAccessKey
   - Basic permissions: CreateNativeProof
-  - Validator-related: Register, Unregister, StakeAsOwner, UpdateKey,   UpdateFee, UpdateAcceptDelegatedStake, SignalProtocolUpdateReadiness,   LockOwnerStakeUnits, StartUnlockOwnerStakeUnits, FinishUnlockOwnerStakeUnits
+  - Validator-related: Validator_Register, Validator_Unregister, Validator_StakeAsOwner, Validator_UpdateKey, Validator_UpdateFee, Validator_UpdateAcceptDelegatedStake, Validator_SignalProtocolUpdateReadiness,   Validator_LockOwnerStakeUnits, Validator_StartUnlockOwnerStakeUnits, Validator_FinishUnlockOwnerStakeUnits
 - Validator operations are gated by permission checks performed in `src/access_manager/access_manager_helper.rs` and handled by `src/validator_extension/validator_extension.rs`.
 
 Files changed/added:
@@ -27,6 +27,20 @@ Files changed/added:
 - Modified: `src/validator_extension/validator_extension.rs`
 - Added samples: manifests/create_basic_key_badge.rtm, manifests/create_super_key_badge.rtm, manifests/create_custom_key_badge.rtm
 - Updated scripts: `scripts/all.ps1`
+
+Deployed packages & recommended dApp accounts
+
+- Stokenet v1.0.0: `package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq`
+- Mainnet v1.0.0: `package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8`
+
+You should use your own dApp account address in manifests. If you don't have one, you can use the RadixPlanet dApp accounts below:
+
+- Stokenet: `account_tdx_2_128ly7s6494uasmggf9rxy6th2e6zu53hj7p0uxgq2ucdmzf43gqkus`
+- Mainnet: `account_rdx12xjdx9ntkjl60r7fuv9az8uzmad0d05mqmjstrpkpvtcew87crahw6`
+
+v2 permission behaviour reminder:
+
+Note that in v2 a key holder possessing `CreateAccessKey` cannot create access keys granting permissions they themselves do not hold. Minting keys with super permissions or validator permissions is rejected for non-owner callers if the caller's key lacks those permissions.
 
 ---
 

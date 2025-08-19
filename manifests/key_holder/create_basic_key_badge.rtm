@@ -1,0 +1,17 @@
+CALL_METHOD Address("${account2}") "lock_fee" Decimal("100");
+# Create a basic access key badge (minimal permissions: CreateNativeProof, callable by owner or key holder with CreateAccessKey permission)
+CALL_METHOD Address("${account2}") "create_proof_of_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
+
+POP_FROM_AUTH_ZONE Proof("proof_id");
+
+CALL_METHOD
+    Address("${component}")
+    "create_basic_key_badge"
+    true # include_validator_permissions
+    Proof("proof_id");
+
+# Create another proof to use to deposit the key badge to the target account, note that the previous proof was passed by intent to the component and it is no longer valid
+CALL_METHOD Address("${account2}") "create_proof_of_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
+
+CALL_METHOD Address("${account3}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;
+

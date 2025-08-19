@@ -6,52 +6,16 @@ pub struct OwnerBadgeData {
     pub manager_component_address: ComponentAddress,
     pub auth_badge_address: ResourceAddress
 }
-// #[derive(ScryptoSbor, NonFungibleData)]
-// pub struct KeyBadgeSuperPermissions {
-//     pub create_access_key: bool,
-//     pub recall_access_key: bool
-// }
-// #[derive(ScryptoSbor, NonFungibleData)]
-// pub struct KeyBadgeBasicPermissions {
-//     pub create_native_proof: bool
-// }
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct AccessKeyBadgeData {
     pub manager_component_address: ComponentAddress,
     pub auth_badge_address: ResourceAddress,
 
-    // #[mutable]
-    // pub super_permissions: KeyBadgeSuperPermissions,
-    // #[mutable]
-    // pub basic_permissions: KeyBadgeBasicPermissions,
-    // #[mutable]
-    // pub validator_permissions: Option<KeyBadgeValidatorPermissions>
     #[mutable]
     pub permissions: Vec<KeyBadgePermission>
 }
-// #[derive(ScryptoSbor)]
-// pub enum KeyBadgeSuperPermission {
-//     CreateAccessKey,
-//     RecallAccessKey
-// }
-// #[derive(ScryptoSbor)]
-// pub enum KeyBadgeBasicPermission {
-//     CreateNativeProof
-// }
-// #[derive(ScryptoSbor)]
-// pub enum KeyBadgeValidatorPermission {
-//     StakeAsOwner,
-//     Register,
-//     Unregister,
-//     UpdateKey,
-//     UpdateFee,
-//     UpdateAcceptDelegatedStake,
-//     SignalProtocolUpdateReadiness,
-//     LockOwnerStakeUnits,
-//     StartUnlockOwnerStakeUnits,
-//     FinishUnlockOwnerStakeUnits
-// }
-#[derive(ScryptoSbor, PartialEq, EnumString)]
+#[derive(ScryptoSbor, PartialEq, EnumString, Debug, Clone)]
+#[allow(non_camel_case_types)]
 pub enum KeyBadgePermission {
     // Super permissions
     CreateAccessKey,
@@ -61,14 +25,14 @@ pub enum KeyBadgePermission {
     CreateNativeProof,
 
     // Validator permissions
-    Register,
-    Unregister,
-    StakeAsOwner,
-    UpdateKey,
-    UpdateFee,
-    UpdateAcceptDelegatedStake,
-    SignalProtocolUpdateReadiness,
-    LockOwnerStakeUnits,
-    StartUnlockOwnerStakeUnits,
-    FinishUnlockOwnerStakeUnits
+    Validator_Register,
+    Validator_Unregister,
+    Validator_StakeAsOwner,
+    Validator_UpdateKey,
+    Validator_UpdateFee,
+    Validator_UpdateAcceptDelegatedStake,
+    Validator_SignalProtocolUpdateReadiness,
+    Validator_LockOwnerStakeUnits,
+    Validator_StartUnlockOwnerStakeUnits,
+    Validator_FinishUnlockOwnerStakeUnits
 }

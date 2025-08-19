@@ -1,0 +1,12 @@
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_badge_id}"));
+POP_FROM_AUTH_ZONE Proof("proof_id");
+
+CALL_METHOD
+    Address("${component}")
+    "create_custom_access_key_badge"
+    Array<String>("UpdateFee")
+    Proof("proof_id");
+
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_badge_id}"));
+CALL_METHOD Address("${account2}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;

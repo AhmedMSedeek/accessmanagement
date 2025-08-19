@@ -52,7 +52,7 @@ This README's manifest examples labeled "basic" reproduce the v1 behavior and ar
 Permissions are defined in `KeyBadgePermission` (see `src/access_manager/custom_types.rs`). Valid values listed below:
 - Super permissions: CreateAccessKey, RecallAccessKey
 - Basic permissions: CreateNativeProof
-- Validator-related: Register, Unregister, StakeAsOwner, UpdateKey, UpdateFee, UpdateAcceptDelegatedStake, SignalProtocolUpdateReadiness, LockOwnerStakeUnits, StartUnlockOwnerStakeUnits, FinishUnlockOwnerStakeUnits
+- Validator-related: Validator_Register, Validator_Unregister, Validator_StakeAsOwner, Validator_UpdateKey, Validator_UpdateFee, Validator_UpdateAcceptDelegatedStake, Validator_SignalProtocolUpdateReadiness, Validator_LockOwnerStakeUnits, Validator_StartUnlockOwnerStakeUnits, Validator_FinishUnlockOwnerStakeUnits
 
 ## Quick usage examples (transaction manifest snippets)
 
@@ -165,3 +165,21 @@ Added manifest samples under `manifests/`:
 - `manifests/` — transaction manifest samples
 
 For more details and concrete encodings, see the `CHANGELOG.md` and `RELEASE_NOTES.md` files in the repository.
+
+## Deployed packages & recommended dApp accounts
+
+Deployed package addresses (for reference):
+
+- Stokenet v1.0.0: `package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq`
+- Mainnet v1.0.0: `package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8`
+
+Use your own dApp account address when constructing manifests. If you don't have one, you can use the RadixPlanet dApp account addresses below:
+
+- Stokenet dApp account: `account_tdx_2_128ly7s6494uasmggf9rxy6th2e6zu53hj7p0uxgq2ucdmzf43gqkus`
+- Mainnet dApp account: `account_rdx12xjdx9ntkjl60r7fuv9az8uzmad0d05mqmjstrpkpvtcew87crahw6`
+
+Note: the deployed package addresses above are provided for convenience and reference only. When testing or deploying in your own environment, publish the package locally and use the generated package address.
+
+### v2 permission behaviour (important)
+
+For version 2: a key holder with the permission `CreateAccessKey` cannot create access keys that include either `CreateAccessKey` or `RecallAccessKey` , or other permissions the key holder themselves do not have. In other words, non-owner callers are blocked from minting keys with any permissions they don't hold (for example, `CreateNativeProof` or any validator permissions not present on their own key). This restriction enforces stricter delegation boundaries compared to v1.

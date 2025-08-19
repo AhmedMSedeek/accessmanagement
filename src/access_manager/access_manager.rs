@@ -154,7 +154,7 @@ mod access_manager {
                     withdrawer_updater => rule!(deny_all);
                 ))
                 .deposit_roles(deposit_roles! (
-                    depositor => rule!(require(owner_badge.resource_address()));
+                    depositor => rule!(allow_all);
                     depositor_updater => rule!(deny_all);
                 ))
                 .recall_roles(recall_roles! (
@@ -205,7 +205,7 @@ mod access_manager {
             self.auth_badge.put(auth_badge);
         }
         pub fn create_super_access_key_badge(&mut self, include_validator_permissions: bool) -> NonFungibleBucket {
-            // called by the owner only
+            // called by the owner only, no need to re-check the permissions
             let mut permissions = vec![
                 KeyBadgePermission::CreateAccessKey,
                 KeyBadgePermission::RecallAccessKey,
@@ -213,16 +213,16 @@ mod access_manager {
             ];
             if include_validator_permissions {
                 permissions.extend(vec![
-                    KeyBadgePermission::StakeAsOwner,
-                    KeyBadgePermission::Register,
-                    KeyBadgePermission::Unregister,
-                    KeyBadgePermission::UpdateKey,
-                    KeyBadgePermission::UpdateFee,
-                    KeyBadgePermission::UpdateAcceptDelegatedStake,
-                    KeyBadgePermission::SignalProtocolUpdateReadiness,
-                    KeyBadgePermission::LockOwnerStakeUnits,
-                    KeyBadgePermission::StartUnlockOwnerStakeUnits,
-                    KeyBadgePermission::FinishUnlockOwnerStakeUnits
+                    KeyBadgePermission::Validator_StakeAsOwner,
+                    KeyBadgePermission::Validator_Register,
+                    KeyBadgePermission::Validator_Unregister,
+                    KeyBadgePermission::Validator_UpdateKey,
+                    KeyBadgePermission::Validator_UpdateFee,
+                    KeyBadgePermission::Validator_UpdateAcceptDelegatedStake,
+                    KeyBadgePermission::Validator_SignalProtocolUpdateReadiness,
+                    KeyBadgePermission::Validator_LockOwnerStakeUnits,
+                    KeyBadgePermission::Validator_StartUnlockOwnerStakeUnits,
+                    KeyBadgePermission::Validator_FinishUnlockOwnerStakeUnits
                 ]);
             }
             self.internal_create_custom_access_key_badge(permissions)
@@ -231,25 +231,26 @@ mod access_manager {
         pub fn create_basic_key_badge(&mut self, include_validator_permissions: bool, proof: NonFungibleProof) -> NonFungibleBucket {
             // can be called by either the owner or a key holder
             // need to check if the key holder has the right permissions
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
-
             let mut permissions = vec![
                 KeyBadgePermission::CreateNativeProof
             ];
             if include_validator_permissions {
                 permissions.extend(vec![
-                    KeyBadgePermission::StakeAsOwner,
-                    KeyBadgePermission::Register,
-                    KeyBadgePermission::Unregister,
-                    KeyBadgePermission::UpdateKey,
-                    KeyBadgePermission::UpdateFee,
-                    KeyBadgePermission::UpdateAcceptDelegatedStake,
-                    KeyBadgePermission::SignalProtocolUpdateReadiness,
-                    KeyBadgePermission::LockOwnerStakeUnits,
-                    KeyBadgePermission::StartUnlockOwnerStakeUnits,
-                    KeyBadgePermission::FinishUnlockOwnerStakeUnits
+                    KeyBadgePermission::Validator_Register,
+                    KeyBadgePermission::Validator_Unregister,
+                    KeyBadgePermission::Validator_StakeAsOwner,
+                    KeyBadgePermission::Validator_UpdateKey,
+                    KeyBadgePermission::Validator_UpdateFee,
+                    KeyBadgePermission::Validator_UpdateAcceptDelegatedStake,
+                    KeyBadgePermission::Validator_SignalProtocolUpdateReadiness,
+                    KeyBadgePermission::Validator_LockOwnerStakeUnits,
+                    KeyBadgePermission::Validator_StartUnlockOwnerStakeUnits,
+                    KeyBadgePermission::Validator_FinishUnlockOwnerStakeUnits
                 ]);
             }
+
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, Some(permissions.clone()), proof);
+
             self.internal_create_custom_access_key_badge(permissions)
         }
         pub fn create_custom_access_key_badge(&mut self, permissions: Vec<String>, proof: NonFungibleProof) -> NonFungibleBucket {
@@ -258,7 +259,7 @@ mod access_manager {
                 .map(|s| KeyBadgePermission::from_str(&s).map_err(|e| e.to_string()))
                 .collect();
 
-           let permissions_enum = match permissions_enum {
+           let permissions_vec = match permissions_enum {
                 Ok(v) => v,
                 Err(e) => {
                     panic!("Invalid permission string: {}", e); 
@@ -269,19 +270,19 @@ mod access_manager {
             // if key holder, super permissions must be none
             if proof.resource_manager().address() == self.access_key_badge_resource_manager.address() {
                 // if the proof is an access key badge, make sure no super permissions are included
-                if permissions_enum.iter().any(|p| matches!(p, KeyBadgePermission::CreateAccessKey | KeyBadgePermission::RecallAccessKey)) {
+                if permissions_vec.iter().any(|p| matches!(p, KeyBadgePermission::CreateAccessKey | KeyBadgePermission::RecallAccessKey)) {
                     panic!("Key holders cannot create access key badges with super permissions!");
                 }
             }
 
             // can be called by either the owner or a key holder
             // need to check if the key holder has the right permissions
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, Some(permissions_vec.clone()), proof);
             
-            self.internal_create_custom_access_key_badge(permissions_enum)
+            self.internal_create_custom_access_key_badge(permissions_vec)
         }
         pub fn recall_key_badge(&mut self, vault_address: InternalAddress, proof: NonFungibleProof) -> NonFungibleBucket {
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::RecallAccessKey, proof);
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::RecallAccessKey, None, proof);
             
             let recalled_bucket: Bucket = scrypto_decode(&ScryptoVmV1Api::object_call_direct(
                 vault_address.as_node_id(),
@@ -295,7 +296,7 @@ mod access_manager {
             key_badge.burn();
         }
         pub fn create_auth_badge_proof(&mut self, proof: NonFungibleProof) -> NonFungibleProof {
-            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateNativeProof, proof);
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateNativeProof, None, proof);
             
             self.auth_badge.as_non_fungible().create_proof_of_non_fungibles(&self.auth_badge.as_non_fungible().non_fungible_local_ids(1))
         }
