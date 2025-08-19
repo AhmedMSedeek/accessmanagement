@@ -14,26 +14,28 @@ mod access_manager {
             key_holder => updatable_by: [];
         },
         methods { 
+            // The proof is passed explicitly to PUBLIC methods, so the permission check is done in the code level
             deposit_auth_badge => restrict_to: [component_owner];
             create_super_access_key_badge => restrict_to: [component_owner];
-            create_basic_key_badge => restrict_to: [component_owner, key_holder];
-            create_custom_access_key_badge => restrict_to: [component_owner, key_holder];
-            recall_key_badge => restrict_to: [component_owner];
-            burn_key_badge => restrict_to: [component_owner];
-            create_auth_badge_proof => restrict_to: [component_owner, key_holder];
+            // `create_access_key_badge` was intentionally removed in v2; use `create_basic_key_badge` instead.
+            create_basic_key_badge => PUBLIC;
+            create_custom_access_key_badge =>  PUBLIC;
+            recall_key_badge =>  PUBLIC;
+            burn_key_badge => restrict_to: [component_owner, key_holder];
+            create_auth_badge_proof => PUBLIC;
             withdraw_auth_badge => restrict_to: [component_owner];
 
             // validator extension methods
-            validator_register => restrict_to: [component_owner, key_holder];
-            validator_unregister => restrict_to: [component_owner, key_holder];
-            validator_stake_as_owner => restrict_to: [component_owner, key_holder];
-            validator_update_key => restrict_to: [component_owner, key_holder];
-            validator_update_fee => restrict_to: [component_owner, key_holder];
-            validator_update_accept_delegated_stake => restrict_to: [component_owner, key_holder];
-            validator_signal_protocol_update_readiness => restrict_to: [component_owner, key_holder];
-            validator_lock_owner_stake_units => restrict_to: [component_owner, key_holder];
-            validator_start_unlock_owner_stake_units => restrict_to: [component_owner, key_holder];
-            validator_finish_unlock_owner_stake_units => restrict_to: [component_owner, key_holder];
+            validator_register => PUBLIC;
+            validator_unregister => PUBLIC;
+            validator_stake_as_owner => PUBLIC;
+            validator_update_key => PUBLIC;
+            validator_update_fee => PUBLIC;
+            validator_update_accept_delegated_stake => PUBLIC;
+            validator_signal_protocol_update_readiness => PUBLIC;
+            validator_lock_owner_stake_units => PUBLIC;
+            validator_start_unlock_owner_stake_units => PUBLIC;
+            validator_finish_unlock_owner_stake_units => PUBLIC;
         }
     }
     enable_package_royalties! {
@@ -123,7 +125,7 @@ mod access_manager {
                 ))
                 .mint_initial_supply(vec![owner_badge_data]);
 
-            let access_key_badge_resource_manager = ResourceBuilder::new_ruid_non_fungible::<OwnerBadgeData>(OwnerRole::None)
+            let access_key_badge_resource_manager = ResourceBuilder::new_ruid_non_fungible::<AccessKeyBadgeData>(OwnerRole::None)
                 .metadata(metadata! (
                     roles {
                         metadata_locker => OWNER;
@@ -223,7 +225,7 @@ mod access_manager {
                     KeyBadgePermission::FinishUnlockOwnerStakeUnits
                 ]);
             }
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
+            self.internal_create_custom_access_key_badge(permissions)
         }
     // `create_access_key_badge` was intentionally removed in v2; use `create_basic_key_badge` (owner or key-holder with proper proof) instead.
         pub fn create_basic_key_badge(&mut self, include_validator_permissions: bool, proof: NonFungibleProof) -> NonFungibleBucket {
@@ -248,7 +250,7 @@ mod access_manager {
                     KeyBadgePermission::FinishUnlockOwnerStakeUnits
                 ]);
             }
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions)
+            self.internal_create_custom_access_key_badge(permissions)
         }
         pub fn create_custom_access_key_badge(&mut self, permissions: Vec<String>, proof: NonFungibleProof) -> NonFungibleBucket {
             let permissions_enum: Result<Vec<_>, _> = permissions
@@ -276,11 +278,11 @@ mod access_manager {
             // need to check if the key holder has the right permissions
             crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateAccessKey, proof);
             
-            crate::access_manager::access_manager_helper::internal_create_custom_access_key_badge(self, permissions_enum)
+            self.internal_create_custom_access_key_badge(permissions_enum)
         }
-        pub fn recall_key_badge(&mut self, vault_address: InternalAddress) -> NonFungibleBucket {
-            // can be called by either the owner or a key holder
-            // need to check if the key holder has the right permissions
+        pub fn recall_key_badge(&mut self, vault_address: InternalAddress, proof: NonFungibleProof) -> NonFungibleBucket {
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::RecallAccessKey, proof);
+            
             let recalled_bucket: Bucket = scrypto_decode(&ScryptoVmV1Api::object_call_direct(
                 vault_address.as_node_id(),
                 VAULT_RECALL_IDENT,
@@ -292,7 +294,9 @@ mod access_manager {
         pub fn burn_key_badge(&mut self, key_badge: NonFungibleBucket) {
             key_badge.burn();
         }
-        pub fn create_auth_badge_proof(&mut self) -> NonFungibleProof {
+        pub fn create_auth_badge_proof(&mut self, proof: NonFungibleProof) -> NonFungibleProof {
+            crate::access_manager::access_manager_helper::check_caller_permissions(self, KeyBadgePermission::CreateNativeProof, proof);
+            
             self.auth_badge.as_non_fungible().create_proof_of_non_fungibles(&self.auth_badge.as_non_fungible().non_fungible_local_ids(1))
         }
         pub fn withdraw_auth_badge(&mut self) -> NonFungibleBucket {
@@ -300,6 +304,18 @@ mod access_manager {
             self.auth_badge.take(1)
         }
     
+        // private methods
+        fn internal_create_custom_access_key_badge(&mut self, permissions: Vec<KeyBadgePermission>) -> NonFungibleBucket {
+                    // if component_owner, accept super permissions as is
+                    // if key holder, super permissions must be none
+            let access_key_badge_data = AccessKeyBadgeData {
+                manager_component_address: Runtime::global_address(),
+                auth_badge_address: self.auth_badge.resource_address(),
+                permissions: permissions
+            };
+            self.access_key_badge_resource_manager.mint_ruid_non_fungible(access_key_badge_data).as_non_fungible()
+        }
+
         // validator extension methods
         pub fn validator_register(&mut self, proof: NonFungibleProof) {
             crate::validator_extension::validator_extension::register(self, proof);

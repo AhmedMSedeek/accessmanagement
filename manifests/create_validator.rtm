@@ -1,0 +1,24 @@
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
+# withdraw XRD to pay validator creation fee
+CALL_METHOD
+    Address("${account}")
+    "withdraw"
+    Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3") # XRD resource in simulator
+    Decimal("2000");
+TAKE_FROM_WORKTOP
+    Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3")
+    Decimal("2000")
+    Bucket("validator_creation_fee");
+
+# create the validator (returns an owner badge + any change on the worktop)
+CREATE_VALIDATOR
+    Bytes("${public_key}")    # node public key hex (no 0x)
+    Decimal("0")                      # fee factor (0.0 .. 1.0)
+    Bucket("validator_creation_fee");
+
+# deposit owner badge + any change back to your account
+CALL_METHOD
+    Address("${account}")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+    None;

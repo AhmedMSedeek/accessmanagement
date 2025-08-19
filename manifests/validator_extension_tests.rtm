@@ -1,0 +1,101 @@
+# Validator extension integration tests
+# This manifest assumes the AccessManager and auth badge are already set up and deployed by create_component.rtm
+
+CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
+
+# Create a super key badge (with validator permissions) using owner badge
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_owner_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_owner_badge_id}"));
+
+CALL_METHOD
+    Address("${component}")
+    "create_super_access_key_badge"
+    Bool(true);
+
+CALL_METHOD Address("${delegate_account}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;
+
+# Now, create a basic key badge (key-holder flow) that includes validator permissions
+CALL_METHOD Address("${delegate_account}") "create_proof_of_non_fungibles" Address("${access_manager_owner_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_owner_badge_id}"));
+
+CALL_METHOD
+    Address("${component}")
+    "create_basic_key_badge"
+    Bool(true) # include_validator_permissions = true
+    Bucket("proof_bucket");
+
+CALL_METHOD Address("${delegate_account}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;
+
+# Prepare a small stake bucket (using XRD from account) to test stake_as_owner and lock/unlock
+CALL_METHOD Address("${account}") "withdraw" Address("${xrd}") Decimal("1");
+TAKE_FROM_WORKTOP Decimal("1") ResourceAddress("${xrd}") Bucket("stake_bucket");
+
+# Create proof from the access key badge (the basic key just created)
+# We expect the test runner to capture the created NF id into ${access_key_badge_id}
+CALL_METHOD Address("${delegate_account}") "create_proof_of_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
+
+# Now call validator methods via the access manager
+CALL_METHOD
+    Address("${component}")
+    "validator_register"
+    Bucket("proof_bucket");
+
+CALL_METHOD
+    Address("${component}")
+    "validator_unregister"
+    Bucket("proof_bucket");
+
+CALL_METHOD
+    Address("${component}")
+    "validator_stake_as_owner"
+    Bucket("stake_bucket")
+    Bucket("proof_bucket");
+
+# Update key (supply a dummy secp256k1 public key hex)
+CALL_METHOD
+    Address("${component}")
+    "validator_update_key"
+    String("03b209fd4fbe5...000")
+    Bucket("proof_bucket");
+
+# Update fee
+CALL_METHOD
+    Address("${component}")
+    "validator_update_fee"
+    Decimal("0.01")
+    Bucket("proof_bucket");
+
+# Update accept delegated stake
+CALL_METHOD
+    Address("${component}")
+    "validator_update_accept_delegated_stake"
+    Bool(true)
+    Bucket("proof_bucket");
+
+# Signal protocol update readiness
+CALL_METHOD
+    Address("${component}")
+    "validator_signal_protocol_update_readiness"
+    String("ready")
+    Bucket("proof_bucket");
+
+# Lock owner stake units
+CALL_METHOD
+    Address("${component}")
+    "validator_lock_owner_stake_units"
+    Bucket("stake_bucket")
+    Bucket("proof_bucket");
+
+# Start unlock owner stake units
+CALL_METHOD
+    Address("${component}")
+    "validator_start_unlock_owner_stake_units"
+    Decimal("1")
+    Bucket("proof_bucket");
+
+# Finish unlock owner stake units
+CALL_METHOD
+    Address("${component}")
+    "validator_finish_unlock_owner_stake_units"
+    Bucket("proof_bucket");
+
+# Deposit any remaining worktop back to account
+CALL_METHOD Address("${account}") "deposit_batch" Expression("ENTIRE_WORKTOP");

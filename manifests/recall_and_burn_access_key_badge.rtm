@@ -1,13 +1,18 @@
 CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
 
-CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${component_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${component_manager_badge_id}"));
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_badge_id}"));
+POP_FROM_AUTH_ZONE Proof("proof_id");
 
 CALL_METHOD
     Address("${component}")
     "recall_key_badge"
-    Address("${access_key_badge_vault_address}");
+    Address("${access_key_badge_vault_address}")
+    Proof("proof_id");
 
 TAKE_NON_FUNGIBLES_FROM_WORKTOP Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}")) Bucket("access_key_badge_bucket");
+
+# Create another proof to use to deposit the key badge to the target account, note that the previous proof was passed by intent to the component and it is no longer valid
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_badge_id}"));
 
 CALL_METHOD
     Address("${component}")
