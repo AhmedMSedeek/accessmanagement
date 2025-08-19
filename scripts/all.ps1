@@ -89,7 +89,7 @@ $command_output = resim run .\manifests\owner\deposit_auth_badge.rtm
 Assert-Contains $command_output "COMMITTED SUCCESS" "deposit_auth_badge - success indicator"
 
 # create_super_key_badge.rtm: should create a non-fungible id
-$command_output = resim run .\manifests\owner\create_super_key_badge.rtm
+$command_output = resim run .\manifests\owner\create_basic_key_badge.rtm
 Assert-Contains $command_output "COMMITTED SUCCESS" "create_super_key_badge - issued NF id"
 $non_fungible_ids = $command_output | Where-Object { $_ -match "change:" -And $_ -match "{" }
 if ($non_fungible_ids) {

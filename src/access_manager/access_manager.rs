@@ -125,7 +125,9 @@ mod access_manager {
                 ))
                 .mint_initial_supply(vec![owner_badge_data]);
 
+            let (key_badge_address_reservation, key_badge_address) = Runtime::allocate_non_fungible_address();
             let access_key_badge_resource_manager = ResourceBuilder::new_ruid_non_fungible::<AccessKeyBadgeData>(OwnerRole::None)
+                .with_address(key_badge_address_reservation)
                 .metadata(metadata! (
                     roles {
                         metadata_locker => OWNER;
@@ -154,7 +156,7 @@ mod access_manager {
                     withdrawer_updater => rule!(deny_all);
                 ))
                 .deposit_roles(deposit_roles! (
-                    depositor => rule!(allow_all);
+                    depositor => rule!(require(owner_badge.resource_address()) || require(key_badge_address));
                     depositor_updater => rule!(deny_all);
                 ))
                 .recall_roles(recall_roles! (
