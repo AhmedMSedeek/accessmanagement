@@ -1,4 +1,10 @@
 CALL_METHOD Address("${account2}") "lock_fee" Decimal("100");
+
 CALL_METHOD Address("${account2}") "create_proof_of_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
 POP_FROM_AUTH_ZONE Proof("proof_id");
-CALL_METHOD Address("${component}") "validator_update_key" Bytes("${public_key}") Proof("proof_id");
+
+CALL_METHOD
+    Address("${component}")
+    "validator_update_key"
+    Bytes("${public_key}")
+    Proof("proof_id");

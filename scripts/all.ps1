@@ -64,7 +64,7 @@ $env:auth_badge = ($previous_line -split "ResAddr:\s+")[1].Trim()
 # Publish package
 $command_output = resim publish .
 $env:package = $command_output | Where-Object { $_ -match "New Package:" } | ForEach-Object { $_.Split(":")[1].Replace(" ", "") }
-Assert-Contains $command_output "COMMITTED SUCCESS" "Publish package"
+Assert-Contains $command_output "New Package:" "Publish package"
 
 Write-Host "-- Running manifests and basic checks --"
 
@@ -84,7 +84,6 @@ $env:access_key_badge=$resources.Split(":")[3].Replace(" ", "")
 $non_fungible_ids=$command_output | Where-Object { $_ -match "change:" -And $_ -match "{" }
 $env:component_manager_badge_id=$non_fungible_ids.Split(":")[1].Replace(" ", "").Replace("+{{", "{").Replace("}},-{}", "}")
 
-
 # deposit_auth_badge.rtm: should accept deposit action
 $command_output = resim run .\manifests\owner\deposit_auth_badge.rtm
 Assert-Contains $command_output "COMMITTED SUCCESS" "deposit_auth_badge - success indicator"
@@ -99,6 +98,12 @@ if ($non_fungible_ids) {
     $non_fungible_ids_index=$command_output.IndexOf($non_fungible_ids)
     $env:access_key_badge_vault_address=$command_output[$non_fungible_ids_index-2].Split(":")[1].Replace(" ", "")
 }
+
+
+# key_holder/validator_update_key.rtm
+resim set-default-account $env:account2 $env:private_key2 $env:owner_badge2`:$env:owner_badge_id2 | Out-Null
+$command_output = resim run .\manifests\key_holder\validator_update_key.rtm
+Assert-Contains $command_output "COMMITTED SUCCESS" "key_holder\validator_update_key - key updated"
 
 # key_holder/create_basic_key_badge.rtm: should create a non-fungible id
 resim set-default-account $env:account2 $env:private_key2 $env:owner_badge2`:$env:owner_badge_id2 | Out-Null

@@ -5,6 +5,6 @@ CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${com
 CALL_METHOD
     Address("${component}")
     "create_super_access_key_badge"
-    false; # include_validator_permissions
+    true; # include_validator_permissions
 
 CALL_METHOD Address("${account2}") "try_deposit_batch_or_abort" Expression("ENTIRE_WORKTOP") None;

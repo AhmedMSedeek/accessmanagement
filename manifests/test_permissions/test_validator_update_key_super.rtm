@@ -1,6 +1,5 @@
 CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
-# use a dummy secp256k1 public key hex of 64 bytes (uncompressed) -- resim will decode as Secp256k1PublicKey
-n
+
 CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_key_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_key_badge_id}"));
 POP_FROM_AUTH_ZONE Proof("proof_id");
-CALL_METHOD Address("${component}") "validator_update_key" Secp256k1PublicKey("0000000000000000000000000000000000000000000000000000000000000000") Proof("proof_id");
+CALL_METHOD Address("${component}") "validator_update_key" Bytes("${public_key}") Proof("proof_id");
