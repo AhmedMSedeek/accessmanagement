@@ -1,6 +1,6 @@
 CALL_METHOD Address("${account}") "lock_fee" Decimal("100");
 
-CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${access_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${access_manager_badge_id}"));
+CALL_METHOD Address("${account}") "create_proof_of_non_fungibles" Address("${component_manager_badge}") Array<NonFungibleLocalId>(NonFungibleLocalId("${component_manager_badge_id}"));
 
 CALL_METHOD
     Address("${component}")

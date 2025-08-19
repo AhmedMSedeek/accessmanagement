@@ -160,7 +160,7 @@ $command_output = resim run .\manifests\holder_burn_access_key.rtm
 Assert-Contains $command_output "COMMITTED SUCCESS" "holder_burn_access_key - burned"
 
 # withdraw_auth_badge.rtm
-$command_output = resim run .\manifests\withdraw_auth_badge.rtm
+$command_output = resim run .\manifests\owner\withdraw_auth_badge.rtm
 Assert-Contains $command_output "COMMITTED SUCCESS" "withdraw_auth_badge - withdrawn badge"
 
 # Finish: restore default account
