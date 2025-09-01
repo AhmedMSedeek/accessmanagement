@@ -175,8 +175,12 @@ For more details and concrete encodings, see the `CHANGELOG.md` and `RELEASE_NOT
 
 Deployed package addresses (for reference):
 
-- Stokenet v1.0.0: `package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq`
-- Mainnet v1.0.0: `package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8`
+- v1.0.0:
+    Stokenet: `package_tdx_2_1p54xl6f3d7leetxpp85j0ua3ll2qfx4xxjcrdvsdgchr00t8qspmnq`
+    Mainnet: `package_rdx1p4m04kkm8tw3fefwrf7zvgxjw8k0n9t30vawgq2kl90q3r77nf59w8`
+- v2.0.0
+    Stokenet: `package_tdx_2_1pkn7f6jqgu4dnf02qnj93t64hhsn95vch5dksh2j3zs5jy0hj55vv3`
+    Mainnet: `package_rdx1pk99tw5p7djduc3je8u3m5p2twkkzxexlc40sw65wnns280h2f5237`
 
 Use your own dApp account address when constructing manifests. If you don't have one, you can use the RadixPlanet dApp account addresses below:
 
