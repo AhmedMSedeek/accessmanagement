@@ -138,7 +138,7 @@ mod access_manager {
                     init {
                         "manager_component_address" => component_address, locked;
                         "name" => "Access Manager Access Key Badge", locked;
-                        "description" => "Access Manager Access Key badge is the badge used to create proof for the auth badge that the access manager component is managing", locked;
+                        "description" => "Access Manager Access Key badge is the badge used to perform the delegated permission on behalf of the component owner", locked;
                         "tags" => vec!["Badge", "Access Control", "Key Badge"], locked;
                         "dapp_definitions" => vec![dapp_definition_address], locked;
                     }

@@ -47,6 +47,11 @@ The v1 implementation supported a simpler model. For backward reference only:
 
 This README's manifest examples labeled "basic" reproduce the v1 behavior and are provided for compatibility.
 
+
+## ⚠️ Important Security Warning: CreateNativeProof Permission
+
+**WARNING:** If a badge is created with the permission to create native proof (`CreateNativeProof`), the badge holder can do whatever they want with that proof outside of the component, regardless of whether or not they have permission to access other methods. Grant this permission only to trusted parties and with full awareness of its implications.
+
 ## Permission enum
 
 Permissions are defined in `KeyBadgePermission` (see `src/access_manager/custom_types.rs`). Valid values listed below:
